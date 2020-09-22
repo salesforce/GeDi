@@ -6,6 +6,8 @@
 
 Official implementation of [GeDi: Generative Discriminator Guided Sequence Generation](https://arxiv.org/abs/2009.06367)
 
+Blogpost [here](https://blog.einstein.ai/gedi/)
+
 
 #### Colab Notebook on controlling topic using GeDi [here](https://colab.research.google.com/github/salesforce/GeDi/blob/master/GeDi_guided_GPT_2_XL.ipynb)     
 
