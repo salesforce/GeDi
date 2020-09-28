@@ -296,7 +296,7 @@ def main():
             if args.mode=="sentiment":
                 args.code_desired = "positive"
                 args.code_undesired = "negative"
-                yn = input("Generates positive by default. Press 'enter' to continue or 'n' to switch to negative (Warning, negative can lead to toxic generaitons at a higher rate than normal GPT-2): " )
+                yn = input("Generates positive by default. Press 'enter' to continue or 'n' to switch to negative (Warning, negative can lead to toxic generations at a higher rate than normal GPT-2 (or GPT-3)): " )
                 if yn == "n":
                     args.code_desired = "negative"
                     args.code_undesired = "positive"
