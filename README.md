@@ -92,6 +92,8 @@ Running will allow you to enter control codes and prompts for generation in a co
 
 To control sentiment from GPT-3 using your API key (should have prefix "sk"):
 
+`pip install openai`
+
 `python ../generate_GeDi.py --penalize_cond --gen_length 100 --mode sentiment --gpt3_api_key sk-xxxxxxxx`
 
 You can also try changing the `--mode` or other arguments. To generate directly from GPT-3 without GeDi using our same greedy decoding scheme:
