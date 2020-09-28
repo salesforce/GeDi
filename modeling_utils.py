@@ -630,6 +630,7 @@ class PreTrainedModel(nn.Module, ModuleUtilsMixin):
         num_return_sequences=None,
         penalize_cond=False,
         gedi_model=None,
+        gpt3_api_key=None,
         tokenizer=None,
         disc_weight=0,
         filter_p=1,
@@ -804,6 +805,7 @@ class PreTrainedModel(nn.Module, ModuleUtilsMixin):
             effective_batch_size,
             penalize_cond,
             gedi_model,
+            gpt3_api_key,
             tokenizer,
             disc_weight,
             filter_p,
@@ -821,7 +823,40 @@ class PreTrainedModel(nn.Module, ModuleUtilsMixin):
         #print('breaking where we wanna')
         #import ipdb; ipdb.set_trace()
         return output
+    def get_gpt3_logits(self, input_ids, tokenizer, non_gpt3_logp=-50000.00, api_key=None):
 
+        import openai
+        openai.api_key = api_key
+        completion = openai.Completion()
+        prompt = tokenizer.decode(input_ids[0])
+        response = completion.create(prompt=prompt,
+                                 engine="davinci",
+                                 max_tokens=1,
+                                 logprobs=100)
+
+        response_dict = response["choices"][0]["logprobs"]["top_logprobs"][0]
+        keys_list = [x for x in response_dict.keys()]
+        values_list = [x for x in response_dict.values()]
+
+
+        pair_list = []
+        full_vocab_p = (non_gpt3_logp)*torch.ones([1,50257], dtype=torch.float32)
+
+        sorted_dict = {k: v for k, v in sorted(response_dict.items(), key=lambda item: item[1])}
+
+        for x,y in zip(keys_list,values_list):
+            tokens1 = tokenizer.encode(prompt + x)
+            tokens2 = input_ids[0].tolist()
+            tot = (len(tokens1)-len(tokens2))
+
+
+
+            index_ = tokenizer.encode(x)
+            if len(index_)== 1:
+                pair_list.append((index_,y))
+                full_vocab_p[0,index_] = y
+
+        return full_vocab_p
     def _generate_no_beam_search(
         self,
         input_ids,
@@ -841,6 +876,7 @@ class PreTrainedModel(nn.Module, ModuleUtilsMixin):
         batch_size,
         penalize_cond,
         gedi_model,
+        gpt3_api_key,
         tokenizer,
         disc_weight,
         filter_p,
@@ -910,11 +946,14 @@ class PreTrainedModel(nn.Module, ModuleUtilsMixin):
             model_inputs = self.prepare_inputs_for_generation(input_ids, past=past)
             if not(pad_lens is None):
                 model_inputs["pad_lens"] = pad_lens
-            outputs = self(**model_inputs)
-
-
-
-            next_token_logits = outputs[0][:, -1, :]
+            if not(gpt3_api_key is None):
+                next_token_logits = self.get_gpt3_logits(model_inputs["input_ids"],
+                                                         tokenizer,
+                                                         -50000.00,
+                                                         gpt3_api_key).to(input_ids.device)
+            else:
+                outputs = self(**model_inputs)
+                next_token_logits = outputs[0][:, -1, :]
             if get_ll:
                 next_token_logp = torch.log_softmax(next_token_logits,-1)
             if not(gedi_model is None):
@@ -1015,10 +1054,12 @@ class PreTrainedModel(nn.Module, ModuleUtilsMixin):
 
 
             # if model has past, then set the past variable to speed up decoding
-            if self._do_output_past(outputs):
+
+            if not (gedi_model is None):
+                gedi_past = gedi_outputs[1]
+            if gpt3_api_key is None:
                 past = outputs[1]
-                if not (gedi_model is None):
-                    gedi_past = gedi_outputs[1]
+
             max = torch.max(next_token_logits,-1,keepdim=True)
             max=max[0]
             next_token_logits= next_token_logits - max + rep_penalty_scale
@@ -1123,6 +1164,7 @@ class PreTrainedModel(nn.Module, ModuleUtilsMixin):
             print("GeDi estimates the probability that it sample is desired class is: " + str(torch.exp(logp_desired[0]).item()))
 
         # add eos_token_ids to unfinished sentences
+
         if cur_len == max_length:
             input_ids[:, -1].masked_fill_(unfinished_sents.to(dtype=torch.bool), eos_token_ids[0])
 

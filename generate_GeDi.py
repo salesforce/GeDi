@@ -62,16 +62,14 @@ def main():
 
     parser.add_argument(
         "--model_type",
-        default=None,
+        default="gpt2",
         type=str,
-        required=True,
         help="Model type selected in the list: " + ", ".join(MODEL_CLASSES.keys()),
     )
     parser.add_argument(
         "--gen_model_name_or_path",
-        default=None,
+        default="gpt2-xl",
         type=str,
-        required=True,
          help="Path to language model (usually `gpt2-xl' can also use `gpt2-large', `gpt2-medium', `gpt2')",
     )
     parser.add_argument(
@@ -134,7 +132,7 @@ def main():
                         type=float,
                         help="The parameter for repetition penalty. Between 1.0 and infinity. 1.0 means no penalty. Default to 1.0.")
     parser.add_argument("--rep_penalty_scale",
-                        default=0.0,
+                        default=10.0,
                         type=float,
                         help="can use positive number to set max logit. rep penalty works better with positive logits")
     parser.add_argument("--penalize_cond", action="store_true",
@@ -153,6 +151,8 @@ def main():
 
 
     parser.add_argument("--secondary_code", type=str, default="business", help="secondary topic control code")
+
+    parser.add_argument("--gpt3_api_key", type=str, default=None,  help= "GPT-3 api key" )
 
     parser.add_argument("--prompt", type=str, default="",  help= "prompt for generation" )
 
@@ -233,6 +233,10 @@ def main():
                              max_sequence_length=model.config.max_position_embeddings)
     else:
 
+        if not(args.gpt3_api_key is None):
+            print("It's a bit wasteful but our code needs to load GPT-2 even if using GPT-3")
+
+
         if args.load_in_half_prec:
             model = model_class.from_pretrained(args.gen_model_name_or_path,load_in_half_prec=True)
             model.to(args.device)
@@ -242,6 +246,7 @@ def main():
         else:
             model = model_class.from_pretrained(args.gen_model_name_or_path)
             model.to(args.device)
+
 
 
 
@@ -260,7 +265,7 @@ def main():
 
 
         args.length = adjust_length_to_model(args.gen_length,
-                             max_sequence_length=model.config.max_position_embeddings)
+                             max_sequence_length=1024)
 
 
 
@@ -349,6 +354,7 @@ def main():
                                           do_sample=args.do_sample,
                                           penalize_cond=args.penalize_cond,
                                           gedi_model=gedi_model,
+                                          gpt3_api_key = args.gpt3_api_key,
                                           tokenizer=tokenizer,
                                           disc_weight=args.disc_weight,
                                           filter_p = args.filter_p,

@@ -11,7 +11,7 @@ Blogpost [here](https://blog.einstein.ai/gedi/)
 
 #### Colab Notebook on controlling topic using GeDi [here](https://colab.research.google.com/github/salesforce/GeDi/blob/master/GeDi_guided_GPT_2_XL.ipynb)     
 
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/salesforce/GeDi/blob/master/GeDi_guided_GPT_2_XL.ipynb) 
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/salesforce/GeDi/blob/master/GeDi_guided_GPT_2_XL.ipynb)
 
 ## Introduction
 
@@ -84,6 +84,20 @@ Running will allow you to enter control codes and prompts for generation in a co
 ### Class-conditional LM and GPT-2 generation
 - Two of the baselines we consider are generating from GPT-2 (will give same result regardless of control codes), and generating from the GeDi model directly as a class-conditional language model (instead of using it to guide generation from GPT-2).
 - Set `--gen_type gpt2` to generate from GPT-2, and `--gen_type cclm` to generate directly from the GeDi as a class-conditional language model. `--gen_type cclm` corresponds to all experiments in Section 5 of the paper, and the CC-LM baselines in Section 6.1.
+
+### GPT-3 generation (added later, API access needed)
+- If you have your own GPT-3 API secret key, you can use GeDi to guide decoding from GPT-3.
+- This is somewhat limited, since the GPT-3 API only allow access to the top 100 next token log probabilities.
+- It is also slow (up to 1 second per token) because modifying GPT-3 decoding requires calling the API one token at a time.
+
+To control sentiment from GPT-3 using your API key (should have prefix "sk"):
+
+`python ../generate_GeDi.py --penalize_cond --gen_length 100 --mode sentiment --gpt3_api_key sk-xxxxxxxx`
+
+You can also try changing the `--mode` or other arguments. To generate directly from GPT-3 without GeDi using our same greedy decoding scheme:
+
+`python ../generate_GeDi.py --penalize_cond --gen_length 100 --mode sentiment --gen_type gpt2 --gpt3_api_key sk-xxxxxxx`
+
 
 ## Train your own GeDi
 
