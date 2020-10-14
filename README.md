@@ -13,6 +13,11 @@ Blogpost [here](https://blog.einstein.ai/gedi/)
 
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/salesforce/GeDi/blob/master/GeDi_guided_GPT_2_XL.ipynb)
 
+## Updates
+
+Sept 29, 2020: Adding support for [GeDi-guided GPT-3 generation](https://github.com/salesforce/gedi#gpt-3-generation-added-after-paper-api-access-needed) (API key needed)
+
+
 ## Introduction
 
 GeDi is a method of using class-conditional language models (which we refer to as generative discriminators (GeDis)) to guide generation from other (potentially much larger) language models. This has several advantages over finetuning large language models directly including:
