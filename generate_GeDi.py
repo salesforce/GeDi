@@ -108,7 +108,7 @@ def main():
     ##arguments for generation
     parser.add_argument("--gen_length", type=int, default=128, help= "generation length")
     parser.add_argument("--stop_token", type=str, default=None, help="Token at which text generation is stopped")
-    parser.add_argument("--temperature", type=float, default=0.1,
+    parser.add_argument("--temperature", type=float, default=1.0,
                         help="lower tend toward greedy sampling",
     )
     parser.add_argument("--disc_weight", type=float, default=30.0,
