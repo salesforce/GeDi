@@ -13,7 +13,7 @@ def proc_and_binarize(dir):
     fid = open(dir+ "/dev.tsv")
     test = fid.read()
     test = test.split("\n")[:-1]
-    topics = ["world","sports","business","science"]
+    topics = ["world","sports"] #,"business","science"]
 
     true_test = []
     false_test = []
