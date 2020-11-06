@@ -2,7 +2,7 @@ pip install transformers==2.8
 pip install -r ../hf_requirements.txt
 
 apt-get update
-apt-get install wget unzip git
+apt-get install -y wget unzip git
 
 git clone https://github.com/NVIDIA/apex
 #Comment apex installation below if fp16 isn't required
