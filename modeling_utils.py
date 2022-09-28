@@ -723,6 +723,9 @@ class PreTrainedModel(nn.Module, ModuleUtilsMixin):
             num_return_sequences: (`optional`) int
                 The number of independently computed returned sequences for each element in the batch. Default to 1.
 
+            multi_code: (`optional`) list of int
+                The token for the topic of generation. Default to None.
+
         Examples::
 
             tokenizer = AutoTokenizer.from_pretrained('distilgpt2')   # Initialize tokenizer
